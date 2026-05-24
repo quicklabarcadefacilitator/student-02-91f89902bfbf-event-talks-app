@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tech Talk Event Schedule</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+        .container {
+            max-width: 900px;
+            margin: 20px auto;
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #0056b3;
+            margin-bottom: 30px;
+        }
+        .search-container {
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .search-container input[type="text"] {
+            padding: 10px;
+            width: 60%;
+            max-width: 300px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin-right: 10px;
+        }
+        .search-container button {
+            padding: 10px 15px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-left: 5px;
+        }
+        .search-container button:hover {
+            background-color: #0056b3;
+        }
+        .talk, .lunch-break {
+            background-color: #e9ecef;
+            border-left: 5px solid #007bff;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 5px;
+        }
+        .lunch-break {
+            border-left: 5px solid #ffc107;
+            background-color: #fff3cd;
+            color: #856404;
+            text-align: center;
+            font-weight: bold;
+        }
+        .talk h2 {
+            margin-top: 0;
+            color: #0056b3;
+        }
+        .talk p {
+            margin: 5px 0;
+        }
+        .talk .time {
+            font-weight: bold;
+            color: #343a40;
+        }
+        .talk .speakers {
+            font-style: italic;
+            color: #6c757d;
+        }
+        .talk .category {
+            font-size: 0.9em;
+            color: #007bff;
+            margin-top: 10px;
+        }
+        .talk .category span {
+            background-color: #e0f0ff;
+            padding: 3px 8px;
+            border-radius: 3px;
+            margin-right: 5px;
+            display: inline-block;
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Tech Talk Event Schedule</h1>
+        <div class="search-container">
+            <input type="text" id="categorySearch" placeholder="Search by category (e.g., AI, JavaScript)..." />
+            <button id="searchButton">Search</button>
+            <button id="resetButton">Reset</button>
+        </div>
+        <div id="schedule">
+            <!-- Schedule will be rendered here by JavaScript -->
+        </div>
+    </div>
+
+    <script>
+        const talksData = [
+  {
+    "title": "The Future of AI in Cloud Computing",
+    "speakers": [
+      "Dr. Evelyn Reed"
+    ],
+    "category": [
+      "AI",
+      "Cloud",
+      "Future"
+    ],
+    "duration": 60,
+    "description": "Explore the symbiotic relationship between artificial intelligence and cloud infrastructure, and what it means for tomorrow's technology landscape."
+  },
+  {
+    "title": "Mastering Modern JavaScript Frameworks",
+    "speakers": [
+      "Carlos Diaz",
+      "Lena Khan"
+    ],
+    "category": [
+      "Frontend",
+      "JavaScript",
+      "WebDev"
+    ],
+    "duration": 60,
+    "description": "A deep dive into the latest features and best practices in popular JavaScript frameworks like React, Vue, and Angular."
+  },
+  {
+    "title": "Secure Coding Practices for Node.js",
+    "speakers": [
+      "Sophia Chang"
+    ],
+    "category": [
+      "Security",
+      "Node.js",
+      "Backend"
+    ],
+    "duration": 60,
+    "description": "Learn essential security measures to protect your Node.js applications from common vulnerabilities and attacks."
+  },
+  {
+    "title": "Introduction to Quantum Computing",
+    "speakers": [
+      "Dr. Alan Turing"
+    ],
+    "category": [
+      "Quantum",
+      "Physics",
+      "Computing"
+    ],
+    "duration": 60,
+    "description": "An accessible introduction to the principles of quantum mechanics and their application in next-generation computing."
+  },
+  {
+    "title": "DevOps for Small Teams: A Practical Guide",
+    "speakers": [
+      "Maria Garcia",
+      "Ben Carter"
+    ],
+    "category": [
+      "DevOps",
+      "Tools",
+      "Agile"
+    ],
+    "duration": 60,
+    "description": "Streamline your development and operations workflows with practical DevOps strategies tailored for lean teams."
+  },
+  {
+    "title": "Data Visualization with D3.js",
+    "speakers": [
+      "David Lee"
+    ],
+    "category": [
+      "Data Science",
+      "Frontend",
+      "JavaScript"
+    ],
+    "duration": 60,
+    "description": "Transform complex data into compelling visual narratives using the powerful D3.js library."
+  }
+];
+
+        function formatTime(date) {
+            let hours = date.getHours();
+            let minutes = date.getMinutes();
+            let ampm = hours >= 12 ? 'PM' : 'AM';
+            hours = hours % 12;
+            hours = hours ? hours : 12; // the hour '0' should be '12'
+            minutes = minutes < 10 ? '0' + minutes : minutes;
+            return hours + ':' + minutes + ' ' + ampm;
+        }
+
+        function generateFullSchedule() {
+            const fullSchedule = [];
+            let currentTalkTime = new Date();
+            currentTalkTime.setHours(10, 0, 0); // Event starts at 10:00 AM
+
+            for (let i = 0; i < talksData.length; i++) {
+                const talk = talksData[i];
+                const talkStartTime = new Date(currentTalkTime);
+                const talkEndTime = new Date(talkStartTime.getTime() + talk.duration * 60 * 1000);
+
+                fullSchedule.push({
+                    type: 'talk',
+                    data: talk,
+                    startTime: talkStartTime,
+                    endTime: talkEndTime
+                });
+
+                currentTalkTime = new Date(talkEndTime.getTime() + 10 * 60 * 1000); // Add 10 min transition
+
+                // Insert lunch break after the third talk (index 2)
+                if (i === 2) {
+                    const lunchStartTime = new Date(currentTalkTime);
+                    const lunchEndTime = new Date(lunchStartTime.getTime() + 60 * 60 * 1000); // 1 hour lunch
+
+                    fullSchedule.push({
+                        type: 'lunch',
+                        startTime: lunchStartTime,
+                        endTime: lunchEndTime
+                    });
+                    currentTalkTime = new Date(lunchEndTime);
+                }
+            }
+            return fullSchedule;
+        }
+
+        const compiledSchedule = generateFullSchedule(); // Generate once
+
+        function displaySchedule(filterCategory = '') {
+            const scheduleDiv = document.getElementById('schedule');
+            scheduleDiv.innerHTML = ''; // Clear previous schedule
+
+            compiledSchedule.forEach(item => {
+                if (item.type === 'talk') {
+                    const talk = item.data;
+                    const matchesFilter = filterCategory === '' || talk.category.some(cat => cat.toLowerCase().includes(filterCategory.toLowerCase()));
+
+                    const talkElement = document.createElement('div');
+                    talkElement.className = 'talk';
+                    if (!matchesFilter) {
+                        talkElement.style.display = 'none'; // Hide if it doesn't match filter
+                    }
+                    talkElement.innerHTML = '<p class="time">' + formatTime(item.startTime) + ' - ' + formatTime(item.endTime) + '</p>' +
+                        '<h2>' + talk.title + '</h2>' +
+                        '<p class="speakers">Speakers: ' + talk.speakers.join(', ') + '</p>' +
+                        '<p class="description">' + talk.description + '</p>' +
+                        '<p class="category">' + talk.category.map(cat => '<span>' + cat + '</span>').join('') + '</p>';
+                    scheduleDiv.appendChild(talkElement);
+                } else if (item.type === 'lunch') {
+                    const lunchElement = document.createElement('div');
+                    lunchElement.className = 'lunch-break';
+                    lunchElement.innerHTML = '<p class="time">' + formatTime(item.startTime) + ' - ' + formatTime(item.endTime) + '</p>' +
+                        '<p>LUNCH BREAK</p>';
+                    scheduleDiv.appendChild(lunchElement);
+                }
+            });
+        }
+
+
+        document.getElementById('searchButton').addEventListener('click', () => {
+            const searchInput = document.getElementById('categorySearch').value;
+            displaySchedule(searchInput);
+        });
+
+        document.getElementById('resetButton').addEventListener('click', () => {
+            document.getElementById('categorySearch').value = '';
+            displaySchedule();
+        });
+
+        // Initial render
+        displaySchedule();
+    </script>
+</body>
+</html>
